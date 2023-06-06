@@ -1,0 +1,19 @@
+# this is a comment
+drop *
+
+#keep event info
+keep run*
+keep event*
+keep luminosityBlock*
+
+#keep nanoAOD content
+
+#CHANGE: keep collections you want to analyze after without selection (e.g. muon triggers, Puppi MET)
+
+#keep custom variables
+keep nLepCand
+keep LepCand*
+keep nJets
+
+#CHANGE: add here all new variables you have defined in DiTau_analysis to store them in the output file
+

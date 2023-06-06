@@ -1,0 +1,15 @@
+# this is a comment
+drop *
+
+#keep event info
+keep run*
+keep event*
+keep luminosityBlock*
+
+#keep objects
+keep Tau*
+keep Muon*
+keep Electron*
+keep Jet*
+
+# CHANGE: keep other necessary collections (PuppiMET, muon triggers, ...)
