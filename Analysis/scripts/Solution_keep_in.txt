@@ -1,0 +1,18 @@
+# this is a comment
+drop *
+
+#keep event info
+keep run*
+keep event*
+keep luminosityBlock*
+
+#keep objects
+keep MET*
+keep Tau*
+keep Muon*
+keep Electron*
+keep Jet*
+keep PV_*
+keep HLT_IsoMu*
+keep PuppiMET_pt
+keep PuppiMET_phi
