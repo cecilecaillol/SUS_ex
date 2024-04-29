@@ -2,7 +2,7 @@ import os
 """ Year dependent configurations / files """
 
 ANALYSISTRIGGER = {
-    '2022': {'mutau':'(1)','mumu':'(HLT_IsoMu24)'}
+    '2022': {'mutau':'(HLT_IsoMu24)','mumu':'(HLT_IsoMu24)'}
 }
 
 ANALYSISCHANNELCUT = {
@@ -21,7 +21,7 @@ ANALYSISCUT={'': {'mutau' : '-c "%s"'%ANALYSISCHANNELCUT['mutau'],'mumu' : '-c "
 #for y in ANALYSISTRIGGER:
 #  ANALYSISCUT[y]={}
 #  for c in ANALYSISTRIGGER[y]:
-#    ANALYSISCUT[y][c]='--cut %s&&%s --json %s'%(ANALYSISTRIGGER[y][c],ANALYSISCHANNELCUT[c],cmssw+'/src/CMSDASTools/Analysis/data/'+ANALYSISGRL[y])
+#    ANALYSISCUT[y][c]='--cut %s&&%s --json %s'%(ANALYSISTRIGGER[y][c],ANALYSISCHANNELCUT[c],cmssw+'/src/SUS_ex/Analysis/data/'+ANALYSISGRL[y])
 
 ## for MC, no json
 for y in ANALYSISTRIGGER:

@@ -54,7 +54,19 @@ int main(int argc, char** argv) {
     }
     cout<<"N gen unweighted: "<<ngenu<<endl;
 
-    float weight=1.0;
+    float weight=1.0; float xs=1.0;
+    // Info from https://twiki.cern.ch/twiki/bin/view/CMS/PdmVRun3Analysis
+    float lumi2022C=5010.4;
+    float lumi2022D=2970.0;
+    float lumi2022E=5807.0;
+    float lumi2022F=17781.9;
+    float lumi2022G=3082.8;
+    float lumi2022=34748.6;
+    float lumi2022_postEE=lumi2022E+lumi2022F+lumi2022G;
+    if (sample=="TTTo2L2Nu"){ xs=923.6*0.1061; weight=lumi2022_postEE*xs/ngenu;}
+    else if (sample=="DY"){ xs=6345.99; weight=lumi2022_postEE*xs/ngenu;}
+    else if (sample=="WW"){ xs=118.7; weight=lumi2022_postEE*xs/ngenu;}
+    else {weight=1.0;}
     // CHANGE: compute the weight for each MC sample based on the integrated luminosity (20 fb-1), the number of generated events (ngenu), and the sample cross section
 
     cout.setf(ios::fixed, ios::floatfield);
@@ -63,10 +75,30 @@ int main(int argc, char** argv) {
     arbre->SetBranchAddress("nLepCand", &nLepCand);
     arbre->SetBranchAddress("LepCand_id", &LepCand_id);
     arbre->SetBranchAddress("LepCand_pt", &LepCand_pt);
+    arbre->SetBranchAddress("LepCand_eta", &LepCand_eta);
+    arbre->SetBranchAddress("LepCand_phi", &LepCand_phi);
+    arbre->SetBranchAddress("LepCand_tauvse2018", &LepCand_tauvse2018);
+    arbre->SetBranchAddress("LepCand_tauvsmu2018", &LepCand_tauvsmu2018);
+    arbre->SetBranchAddress("LepCand_tauvsjet2018", &LepCand_tauvsjet2018);
+    arbre->SetBranchAddress("LepCand_charge", &LepCand_charge);
+    arbre->SetBranchAddress("LepCand_taudm", &LepCand_taudm);
+    arbre->SetBranchAddress("LepCand_gen", &LepCand_gen);
+    arbre->SetBranchAddress("HLT_IsoMu24", &HLT_IsoMu24);
     arbre->SetBranchAddress("nJets", &nJets);
+    arbre->SetBranchAddress("PuppiMET_phi", &PuppiMET_phi);
+    arbre->SetBranchAddress("PuppiMET_pt", &PuppiMET_pt);
 
+    arbre->SetBranchAddress("LepCand_tauvsjet2018_sf", &LepCand_tauvsjet2018_sf);
+    arbre->SetBranchAddress("LepCand_tauvsmu2018_sf", &LepCand_tauvsmu2018_sf);
+    arbre->SetBranchAddress("LepCand_muonIso_sf", &LepCand_muonIso_sf);
+    arbre->SetBranchAddress("LepCand_muonID_sf", &LepCand_muonID_sf);
+    arbre->SetBranchAddress("LepCand_trg_sf", &LepCand_trg_sf);
 
     TH1F* h_mvis = new TH1F("h_mvis","h_mvis",30,0,300); h_mvis->Sumw2();
+    TH1F* h_mvis_anti = new TH1F("h_mvis_anti","h_mvis_anti",30,0,300); h_mvis_anti->Sumw2();
+    TH1F* h_taupt_iso_SS = new TH1F("h_taupt_iso_SS","h_taupt_iso_SS",10,0,100); h_taupt_iso_SS->Sumw2();
+    TH1F* h_taupt_anti_SS = new TH1F("h_taupt_anti_SS","h_taupt_anti_SS",10,0,100); h_taupt_anti_SS->Sumw2();
+
     // CHANGE: define here other histograms you want to fill and save
 
    Int_t nentries_wtn = (Int_t) arbre->GetEntries();
@@ -91,18 +123,39 @@ int main(int argc, char** argv) {
 	// CHANGE: build and fill the four-vectors of the muon and the tau 
         TLorentzVector my_tau; 
         TLorentzVector my_mu; 
+	my_tau.SetPtEtaPhiM(LepCand_pt[tau_index],LepCand_eta[tau_index],LepCand_phi[tau_index],0.1);
+	my_mu.SetPtEtaPhiM(LepCand_pt[mu_index],LepCand_eta[mu_index],LepCand_phi[mu_index],0.1);
+
 
 	// CHANGE: apply the selection on the muon and the tau (eta, pt, ID, ...)
-	// if (my_tau.Pt()<20) continue;
+	if (my_tau.Pt()<30) continue;
+	if (fabs(my_tau.Eta())>2.3) continue;
+	if (my_mu.Pt()<26) continue;
+        if (fabs(my_mu.Eta())>2.4) continue;
+	if (LepCand_tauvse2018[tau_index]<3) continue;
+	if (LepCand_tauvsmu2018[tau_index]<4) continue;
+	//if (LepCand_tauvsjet2018[tau_index]<5) continue;
 	//
 	// CHANGE: apply the selection on the dilepton pair (DR > 0.5, OS, ...)
-	//
-	// CHANGE: apply the trigger selection
-	//
+	if (my_mu.DeltaR(my_tau)<0.5) continue;
 
+	//if (LepCand_charge[mu_index]*LepCand_charge[tau_index]>0) continue;
+	bool is_OS=(LepCand_charge[mu_index]*LepCand_charge[tau_index]<0);
+	bool is_iso=(LepCand_tauvsjet2018[tau_index]>=5);
+	// CHANGE: apply the trigger selection
+	if (!HLT_IsoMu24) continue;
+
+	float correction = 1.0;
+	if (name!="data_obs"){
+	   correction = correction * LepCand_tauvsjet2018_sf[tau_index] * LepCand_tauvsmu2018_sf[tau_index] * LepCand_muonIso_sf[mu_index] * LepCand_muonID_sf[mu_index] * LepCand_trg_sf[mu_index];
+	}
 
 	//CHANGE: fill the histograms
-	//h_mvis->Fill((my_mu+my_tau).M(),weight);
+	if (is_OS and is_iso) h_mvis->Fill((my_mu+my_tau).M(),weight*correction);
+	float fr=0.1;
+	if (is_OS and !is_iso) h_mvis_anti->Fill((my_mu+my_tau).M(),weight*fr*correction);
+	if (!is_OS and is_iso) h_taupt_iso_SS->Fill(my_tau.Pt(),weight*correction);
+	if (!is_OS and !is_iso) h_taupt_anti_SS->Fill(my_tau.Pt(),weight*correction);
 
     } // end of loop over events
 
@@ -111,12 +164,19 @@ int main(int argc, char** argv) {
 
     // You can store the histogram directly in the root file...
     h_mvis->Write();
+    h_taupt_iso_SS->Write();
+    h_taupt_anti_SS->Write();
     // or in a directory (necessary for the statistical analysis later)
 
     TDirectory *dir_OSiso =fout->mkdir("OSiso");
     dir_OSiso->cd();
     h_mvis->SetName(name.c_str());
     h_mvis->Write();
+
+    TDirectory *dir_OSanti =fout->mkdir("OSanti");
+    dir_OSanti->cd();
+    h_mvis_anti->SetName(name.c_str());
+    h_mvis_anti->Write();
 
     // CHANGE: save the other histograms you have filled
 

@@ -7,9 +7,12 @@ keep event*
 keep luminosityBlock*
 
 #keep objects
+keep MET*
 keep Tau*
 keep Muon*
 keep Electron*
 keep Jet*
-
-# CHANGE: keep other necessary collections (PuppiMET, muon triggers, ...)
+keep PV_*
+keep HLT_IsoMu24
+keep PuppiMET_pt
+keep PuppiMET_phi

@@ -5,7 +5,7 @@ import optparse
 import shutil
 import random
 from glob import glob
-from CMSDASTools.Analysis.EraConfig import *
+from SUS_ex.Analysis.EraConfig import *
 
 
 def buildCondorFile(opt,FarmDirectory):
@@ -28,10 +28,7 @@ def buildCondorFile(opt,FarmDirectory):
         condor.write('+JobFlavour = "tomorrow"\n')
         condor.write('+AccountingGroup = "group_u_CMST3.all"\n')
         OpSysAndVer = str(os.system('cat /etc/redhat-release'))
-        if 'SLC' in OpSysAndVer:
-            OpSysAndVer = "SLCern6"
-        else:
-            OpSysAndVer = "CentOS7"
+        OpSysAndVer = "AlmaLinux9"
         condor.write('requirements = (OpSysAndVer =?= "{0}")\n\n'.format(OpSysAndVer))
         condor.write('should_transfer_files = YES\n')
         condor.write('transfer_input_files = %s\n\n'%os.environ['X509_USER_PROXY'])
@@ -41,7 +38,7 @@ def buildCondorFile(opt,FarmDirectory):
           sufix=''
           prefix=''
           year='2022'
-          if 'NanoAODv11' in dataset:
+          if '22Sep' in dataset or 'Run3' in dataset:
             dataset_name = '_'.join(dataset.split('/')[1:3])
             sufix='data'
             cmd='dasgoclient --query=\"file dataset={} status=*\"'.format(dataset)
@@ -54,13 +51,13 @@ def buildCondorFile(opt,FarmDirectory):
           else:
             print('ERROR: found invalid dataset = ',dataset,'stop the code')
             sys.exit(1)
-	  if "Muon" in dataset:
-            sufix='data'
-	  else:
-            sufix='mc'
-	  # CHANGE: indicate which channel you want to run on
-          #channels=['mutau']
-          channels=['mumu']
+          if "Muon" in dataset:
+              sufix='data'
+          else:
+              sufix='mc'
+	      # CHANGE: indicate which channel you want to run on
+          channels=['mutau']
+          #channels=['mumu']
             
           #prepare output
           output=opt.output+'/'+dataset_name
@@ -100,16 +97,16 @@ def buildCondorFile(opt,FarmDirectory):
         worker.write('eval `scram r -sh`\n')
         worker.write('cd ${WORKDIR}\n')
         worker.write('echo "INFO: Run ntuplizer"\n')
-        worker.write('echo "python $CMSSW_BASE/src/PhysicsTools/NanoAODTools/scripts/nano_postproc.py \\\\"\n')
+        worker.write('echo "python3 $CMSSW_BASE/src/PhysicsTools/NanoAODTools/scripts/nano_postproc.py \\\\"\n')
         worker.write('echo "$filename ${input}  \\\\"\n')
-        worker.write('echo "--bi $CMSSW_BASE/src/CMSDASTools/Analysis/scripts/keep_in.txt   \\\\"\n')
-        worker.write('echo "--bo $CMSSW_BASE/src/CMSDASTools/Analysis/scripts/keep_out.txt  \\\\"\n')
-        worker.write('echo "${filter} -I CMSDASTools.Analysis.DiTau_analysis ${channel} "\n')
-        worker.write('python $CMSSW_BASE/src/PhysicsTools/NanoAODTools/scripts/nano_postproc.py \\\n')
+        worker.write('echo "--bi $CMSSW_BASE/src/SUS_ex/Analysis/scripts/keep_in.txt   \\\\"\n')
+        worker.write('echo "--bo $CMSSW_BASE/src/SUS_ex/Analysis/scripts/keep_out.txt  \\\\"\n')
+        worker.write('echo "${filter} -I SUS_ex.Analysis.DiTau_analysis ${channel} "\n')
+        worker.write('python3 $CMSSW_BASE/src/PhysicsTools/NanoAODTools/scripts/nano_postproc.py \\\n')
         worker.write('$filename ${input}  \\\n')
-        worker.write('--bi $CMSSW_BASE/src/CMSDASTools/Analysis/scripts/keep_in.txt   \\\n')
-        worker.write('--bo $CMSSW_BASE/src/CMSDASTools/Analysis/scripts/keep_out.txt  \\\n')
-        worker.write('${filter} -I CMSDASTools.Analysis.DiTau_analysis ${channel} \n')
+        worker.write('--bi $CMSSW_BASE/src/SUS_ex/Analysis/scripts/keep_in.txt   \\\n')
+        worker.write('--bo $CMSSW_BASE/src/SUS_ex/Analysis/scripts/keep_out.txt  \\\n')
+        worker.write('${filter} -I SUS_ex.Analysis.DiTau_analysis ${channel} \n')
         worker.write('echo cp ${filename}/${filename}_Skim.root ${output}/${filename}_Skim.root\n')
         worker.write('cp ${filename}/${filename}_Skim.root ${output}/\n')
         worker.write('\necho clean output\ncd ../\nrm -rf ${WORKDIR}\n')
@@ -134,7 +131,7 @@ def main():
     parser.add_option('-i', '--in',     dest='input',  help='list of input datasets',    default='listSamples.txt', type='string')
 
     # CHANGE: indicate the area in eos where the output files should be stored (and create it with mkdir before submitting the jobs)
-    parser.add_option('-o', '--out',      dest='output',   help='output directory',  default='/eos/cms/store/cmst3/user/ccaillol/long-ex-ztt/ntuples_mumu_2022', type='string')
+    parser.add_option('-o', '--out',      dest='output',   help='output directory',  default='/eos/cms/store/cmst3/user/ccaillol/cmsdas2024/ntuples_mutau_2022', type='string')
 
     parser.add_option('-f', '--force',      dest='force',   help='force resubmission',  action='store_true')
     parser.add_option('-s', '--submit',   dest='submit',   help='submit jobs',       action='store_true')

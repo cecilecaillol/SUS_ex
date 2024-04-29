@@ -8,7 +8,12 @@ class TauSelector(ObjectSelector):
 
     def evalTau(self, tau):
         if tau.pt < self.minPt: return False
-	# CHANGE: add basic tau selection criteria (eta, dz, decay mode, loosest discriminators against electrons/muons/jets)
+        if abs(tau.eta) > 2.3: return False
+        if abs(tau.dz) > 0.2: return False
+        if tau.decayMode not in [0,1,10,11]: return False
+        if tau.idDeepTau2018v2p5VSe<1: return False # VVVLoose
+        if tau.idDeepTau2018v2p5VSmu<1: return False # VLoose
+        if tau.idDeepTau2018v2p5VSjet<1: return False # VVVLoose
 
         return True
 
@@ -25,7 +30,7 @@ class ElectronSelector(ObjectSelector):
         if el.pt < self.minPt: return False
         if abs(el.eta) > 2.4: return False
         if abs(el.dxy) > 0.1 or abs(el.dz) > 0.2: return False
-        if not el.mvaIso_Fall17V2_WP90: return False
+        if not el.mvaIso_WP90: return False
 
         return True
         
@@ -35,8 +40,9 @@ class MuonSelector(ObjectSelector):
 
     def evalMuon(self, mu):
         if mu.pt < self.minPt: return False
-
-	# CHANGE: add muon selection criteria (eta, dxy, dz, isolation, ID)
-
+        if abs(mu.eta) > 2.4: return False
+        if mu.pfRelIso04_all>0.15: return False
+        if abs(mu.dxybs) > 0.1 or abs(mu.dz) > 0.2: return False
+        if not mu.mediumId: return False
         return True
         

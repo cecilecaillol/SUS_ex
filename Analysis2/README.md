@@ -15,3 +15,8 @@ mkdir output_mutau_2022
 ```
 python Draw_mutau.py
 ```
+
+## To run the whole sequence (run on each flat tree, create the fake histogram, make the datacard, draw the distributions):
+```
+sh do_all.sh
+```

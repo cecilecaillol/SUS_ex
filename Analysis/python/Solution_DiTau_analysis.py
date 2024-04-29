@@ -7,7 +7,7 @@ from importlib import import_module
 from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import Module
 from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection
 
-from long-ex-ztt.Analysis.objectSelector import ElectronSelector, MuonSelector, TauSelector
+from SUS_ex.Analysis.objectSelector import ElectronSelector, MuonSelector, TauSelector
 
 class Analysis(Module):
     def __init__(self, channel, isMC):

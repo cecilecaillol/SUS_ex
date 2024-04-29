@@ -40,7 +40,7 @@ def add_Preliminary():
     lumi.SetFillStyle(    0 )
     lumi.SetTextAlign(   12 )
     lumi.SetTextColor(    1 )
-    lumi.AddText("Preliminary")
+    lumi.AddText("Internal")
     return lumi
 
 def make_legend():
@@ -63,11 +63,13 @@ trans=ROOT.TColor(new_idx, adapt.GetRed(), adapt.GetGreen(),adapt.GetBlue(), "",
 c=ROOT.TCanvas("canvas","",0,0,800,800)
 c.cd()
 
-file=ROOT.TFile("datacard_mutau_2022.root","r")
+file=ROOT.TFile("datacard_mutau.root","r")
 
 Data=file.Get("OSiso").Get("data_obs")
-TT=file.Get("OSiso").Get("TT")
-VV=file.Get("OSiso").Get("VV")
+TT=file.Get("OSiso").Get("TTTo2L2Nu")
+VV=file.Get("OSiso").Get("WW")
+DY=file.Get("OSiso").Get("DY")
+Fake=file.Get("OSiso").Get("Fake")
 #CHANGE: add other contributions (DY, fake, ...)
 
 Data.GetXaxis().SetTitle("")
@@ -82,13 +84,18 @@ Data.SetTitle("")
 Data.GetYaxis().SetTitle("Events/bin")
 Data.SetMinimum(0.1)
 
-
-TT.SetFillColor(ROOT.TColor.GetColor("#4a4e4d"))
-VV.SetFillColor(ROOT.TColor.GetColor("#ff8c94"))
+#CMS 6-color scheme ["#5790fc", "#f89c20", "#e42536", "#964a8b", "#9c9ca1", "#7a21dd"] 
+#CMS 10-color scheme ["#3f90da", "#ffa90e", "#bd1f01", "#94a4a2", "#832db6", "#a96b59", "#e76300", "#b9ac70", "#717581", "#92dadd"]
+TT.SetFillColor(ROOT.TColor.GetColor("#5790fc"))
+VV.SetFillColor(ROOT.TColor.GetColor("#f89c20"))
+DY.SetFillColor(ROOT.TColor.GetColor("#e42536"))
+Fake.SetFillColor(ROOT.TColor.GetColor("#964a8b"))
 Data.SetMarkerStyle(20)
 Data.SetMarkerSize(1)
 TT.SetLineColor(1)
 VV.SetLineColor(1)
+DY.SetLineColor(1)
+Fake.SetLineColor(1)
 Data.SetLineColor(1)
 Data.SetLineWidth(2)
 #CHANGE: set the color and style for other contributions
@@ -96,10 +103,14 @@ Data.SetLineWidth(2)
 stack=ROOT.THStack("stack","stack")
 stack.Add(TT)
 stack.Add(VV)
+stack.Add(DY)
+stack.Add(Fake)
 #CHANGE: stack the other contributions
 
 errorBand = TT.Clone()
 errorBand.Add(VV)
+errorBand.Add(DY)
+errorBand.Add(Fake)
 #CHANGE: add the other contributions
 
 errorBand.SetMarkerSize(0)
@@ -135,8 +146,10 @@ Data.Draw("esame")
 
 legende=make_legend()
 legende.AddEntry(Data,"Observed","elp")
+legende.AddEntry(DY,"Drell-Yan","f")
 legende.AddEntry(TT,"t#bar{t}","f")
-legende.AddEntry(VV,"VV,single-t, W","f")
+legende.AddEntry(VV,"WW","f")
+legende.AddEntry(Fake,"misID #tau_{h}","f")
 #CHANGE: add the other contributions to the legend
 legende.AddEntry(errorBand,"Uncertainty","f")
 legende.Draw()
