@@ -14,7 +14,7 @@ chns = ['mt']
 
 bkg_procs = {'mt' : ['DY', 'TTTo2L2Nu', 'WW', 'Fake']}
 
-sig_procs = {'mt': ['stau_right', 'stau_left']}
+sig_procs = {'mt': ['stau_right']}
 
 cats = {
     'mt_13TeV' : [
