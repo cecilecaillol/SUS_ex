@@ -29,9 +29,9 @@ for chn in chns:
 
 
 print '>> Adding systematic uncertainties...'
-cb.cp().process({"DY", "TTTo2L2Nu", "WW", "stau_right", "stau_left"}).AddSyst(cb, 'lumi_13TeV', 'lnN', ch.SystMap()(1.03))
-cb.cp().process({"DY", "TTTo2L2Nu", "WW", "stau_right", "stau_left"}).AddSyst(cb, "CMS_eff_m", "lnN", ch.SystMap()(1.02));
-cb.cp().process({"DY", "TTTo2L2Nu", "WW", "stau_right", "stau_left"}).AddSyst(cb, "CMS_eff_t", "lnN", ch.SystMap()(1.08));
+cb.cp().process({"DY", "TTTo2L2Nu", "WW", "stau_right"}).AddSyst(cb, 'lumi_13TeV', 'lnN', ch.SystMap()(1.03))
+cb.cp().process({"DY", "TTTo2L2Nu", "WW", "stau_right"}).AddSyst(cb, "CMS_eff_m", "lnN", ch.SystMap()(1.02));
+cb.cp().process({"DY", "TTTo2L2Nu", "WW", "stau_right"}).AddSyst(cb, "CMS_eff_t", "lnN", ch.SystMap()(1.08));
 cb.cp().process({"Fake"}).AddSyst(cb, "norm_fakes", "lnN", ch.SystMap()(1.5));
 
 print '>> Extracting histograms from input root files...'
